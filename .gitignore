@@ -1,0 +1,5 @@
+*.caffemodel
+*.prototxt
+*.txt
+filters
+images
