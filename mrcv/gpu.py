@@ -1,7 +1,6 @@
 #coding=utf-8
 import os
 import sys
-import re
 import pwd
 import time
 import psutil
@@ -47,25 +46,31 @@ def get_info(verbose=True):
     gpus=[]
     msg = subprocess.Popen('nvidia-smi', stdout = subprocess.PIPE).stdout.read().decode()
     msg = msg.strip().split('\n')
-    lino = 8
+    lino = 0
+    seen = 0
     while True:
-        status = re.findall('.*\d+C.*\d+W / +\d+W.* +(\d+)MiB / +(\d+)MiB.* +(\d+%).*', msg[lino])
-        if status == []: break
-        mem_usage, mem_total, usage = status[0]
-        gpus.append(mem_usage+"M/"+mem_total+"M\t"+usage)
-        lino += 3
-    lino = -1
+        if '|=' in msg[lino]:
+            seen +=1
+            if seen == 2:
+                lino += 1
+                break
+        if '| Processes:' in msg[lino]:
+            infos = msg[lino+1].split()
+            pidpos = infos.index('PID')
+            gpupos = infos.index('GPU')
+        lino += 1
     maps={}
-    while True:
-        lino -= 1
-        status = re.findall('\| +(\d+) +(\d+) +\w+ +([^ ]*) +(\d+)MiB \|', msg[lino])
-        if status == []:
-            break
-        gpuid, pid, _, mem_usage = status[0]
+    while lino < len(msg) -1:
+        line = msg[lino]
+        items = line.split()
+        pid = items[pidpos]
+        gpuid = items[gpupos]
+        mem_usage = items[-2][:-3]
         if pid in maps.keys():
             maps[pid]=str(gpuid)+","+maps[pid]
         else:
             maps[pid]=str(gpuid)+"\t"+pid+"\t"+mem_usage+"M"
+        lino += 1
     maps=sorted(maps.items(),key=operator.itemgetter(1),reverse=True)
     lines=[]
     for pid in maps:
@@ -75,8 +80,7 @@ def get_info(verbose=True):
                 line=pid[1]+"\t"+cmd
                 lines.append((line))
         except Exception as e:
-            #print(e)
-            e
+            pass
     lines.reverse()
     line=""
     for i,g in enumerate(gpus):
@@ -85,7 +89,7 @@ def get_info(verbose=True):
             line+="\n"
     if verbose:
         print(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()))
-        print(line[:-1])
+        #print(line[:-1])
         print("gpu\tpid\tmemusage\tdir\tcmd")
     runs=[]
     for line in lines:

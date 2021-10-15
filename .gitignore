@@ -1,5 +1,8 @@
+build
 *.caffemodel
 *.prototxt
 *.txt
 filters
 images
+dist
+*.egg-info

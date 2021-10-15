@@ -22,7 +22,7 @@ def get_possible_file(modelpath):
             else:
                 return model
 
-def get_flops(net, shape = (1,3,128,128), verbose = True):
+def get_flops(net, shape = (1,3,224,224), verbose = True):
     layerNames = net.getLayerNames()
     infos = []
     maxnamelen = 8

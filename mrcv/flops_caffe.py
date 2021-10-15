@@ -2,7 +2,7 @@ import sys
 import caffe
 from numpy import prod, sum
 
-def get_flops(deploy_file, show_detail=True,flop_layers = ['Convolution', 'DepthwiseConvolution', 'InnerProduct']):
+def get_flops(deploy_file, show_detail=True,flop_layers = ['Convolution', 'DepthwiseConvolution', 'InnerProduct','Deconvolution']):
     net=caffe.Net(deploy_file,caffe.TEST)
     params=0
     flops=0
@@ -13,9 +13,13 @@ def get_flops(deploy_file, show_detail=True,flop_layers = ['Convolution', 'Depth
         name, layer = item
         layer_type = net.layer_dict[name].type
         if layer_type in flop_layers:
-            maxnamelen =len(name) if len(name) > maxnamelen else maxnamelen
-            param = layer[0].count# + layer[1].count
+            maxnamelen = len(name) if len(name) > maxnamelen else maxnamelen
+            #param = layer[0].count# + layer[1].count
             #bm = net.blobs[net.bottom_names[name][0]]
+            param = 0
+            flop = 0
+            for ly in layer:
+                param += ly.count
             bt = net.blobs[net.top_names[name][0]]
             flop = param*bt.width*bt.height
             if show_detail:

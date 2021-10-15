@@ -39,7 +39,7 @@ else:
     import urllib.parse
 import threading
 import urllib
-import cgi
+import html
 import shutil
 import mimetypes
 import re
@@ -361,7 +361,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             return None
         list.sort(key=lambda a: a.lower())
         f = StringIO()
-        displaypath = cgi.escape(urllib.unquote(self.path))
+        displaypath = html.escape(urllib.unquote(self.path))
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
         f.write("<html>\n<title>Directory listing for %s</title>\n" % displaypath)
         f.write("<body>\n<h2>Directory listing for %s</h2>\n" % displaypath)
@@ -410,7 +410,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404, "No permission to list directory")
             return None
         list.sort(key=lambda a: a.lower())
-        displaypath = cgi.escape(urllib.parse.unquote(self.path))
+        displaypath = html.escape(urllib.parse.unquote(self.path))
 
         f = ('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">') +\
             ('<html><head>') +\
@@ -435,7 +435,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 displayname = name
                 colorName = '<span style="background-color: #FFBFFF;">' + name + '@</span>'
                 # Note: a link to a directory displays with @ and links with /
-            #f = f + ('<li><a href="%s">%s</a>' % (urllib.parse.quote(linkname), cgi.escape(displayname)))
+            #f = f + ('<li><a href="%s">%s</a>' % (urllib.parse.quote(linkname), html.escape(displayname)))
             filename = os.getcwd() + '/' + displaypath + displayname
             f = f+'<table><tr><td width="60%%"><a href="%s">%s</a></td><td width="20%%">%s</td><td width="20%%">%s</td></tr>\n'% (urllib.parse.quote(linkname), colorName,sizeof_fmt(os.path.getsize(filename)), modification_date(filename))
         f = f + ("</table><hr></body></html>")
