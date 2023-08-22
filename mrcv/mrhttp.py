@@ -536,6 +536,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     '.bat': 'text/plain',
     '.rc': 'text/plain',
     '.prototxt': 'text/plain',
+    '.webp': 'image/webp'
     })
 
 if sys.version_info.major == 2:
